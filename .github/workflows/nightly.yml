@@ -30,6 +30,7 @@ jobs:
           NEW_TAG="nightly-${INCREMENT}"
           echo next tag '${NEW_TAG}'
           echo "::set-output name=new_tag::${NEW_TAG}"
+          echo "::set-output name=new_version_id::${INCREMENT}"
 
       - name: "Pull upstream"
         run: |
@@ -37,7 +38,12 @@ jobs:
           git pull upstream dev
 
       - name: "Build release apk"
-        run: ./gradlew assembleRelease --stacktrace -DpackageSuffix=nightly
+        run: >-
+          ./gradlew assembleRelease
+          --stacktrace
+          -DpackageSuffix=nightly
+          -DversionNameSuffix=-${{ steps.tagger.outputs.new_version_id }}-$(date -u '+%Y%m%d%H%M')
+          -DversionCodeOverride=${{ steps.tagger.outputs.new_version_id }}
 
       - name: "Check for new commits"
         run : |
