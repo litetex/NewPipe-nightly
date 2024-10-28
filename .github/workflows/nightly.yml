@@ -24,9 +24,9 @@ jobs:
       - name: "Determine next tag"
         id: tagger
         run: |
-          TAG=$(git tag --sort=-v:refname | grep nightly- | head -n 1)
-          VERSION=$(echo $TAG | sed -e s/[^0-9]//g)
-          INCREMENT=$((VERSION + 1))
+          TAG="$(git tag --sort=-v:refname | grep nightly- | head -n 1)"
+          VERSION="$(echo $TAG | sed -e s/[^0-9]//g)"
+          INCREMENT="$((VERSION + 1))"
           NEW_TAG="nightly-${INCREMENT}"
           echo next tag '${NEW_TAG}'
           echo "::set-output name=new_tag::${NEW_TAG}"
@@ -41,14 +41,14 @@ jobs:
 
       - name: "Check for new commits"
         run : |
-          if [[ $(git log --since=1.days) ]]; then
+          if [[ "$(git log --since=1.days)" ]]; then
             echo "New commits found"
             echo "new_commit=true" >> $GITHUB_ENV
           fi 
 
       - name: "Tag commit"
         if: ${{ env.new_commit == 'true' }}
-        run: git tag ${{ steps.tagger.outputs.new_tag }}
+        run: git tag "${{ steps.tagger.outputs.new_tag }}"
 
       - name: "Push to nightly repo"
         if: ${{ env.new_commit == 'true' }}
@@ -73,7 +73,7 @@ jobs:
         if: ${{ env.new_commit == 'true' }}
         id: rename_apk
         run: |
-          mv ${{steps.sign_app.outputs.signedFile}} app/build/outputs/apk/release/NewPipe_${{steps.tagger.outputs.new_tag}}.apk
+          mv "${{steps.sign_app.outputs.signedFile}}" "app/build/outputs/apk/release/NewPipe_${{steps.tagger.outputs.new_tag}}.apk"
           echo "::set-output name=apkFile::app/build/outputs/apk/release/NewPipe_${{steps.tagger.outputs.new_tag}}.apk"
 
       - name: "Create GitHub release with APK"
