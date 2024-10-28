@@ -66,7 +66,7 @@ jobs:
 
       - name: "Push to nightly repo"
         if: ${{ env.do_release == 'true' }}
-        uses: ad-m/github-push-action@v0.6.0
+        uses: ad-m/github-push-action@v0.8.0
         with:
           github_token: ${{secrets.ACCESS_TOKEN}}
           branch: dev
@@ -92,7 +92,7 @@ jobs:
 
       - name: "Create GitHub release with APK"
         if: ${{ env.do_release == 'true' }}
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         id: create_release
         with:
           tag_name: ${{ steps.tagger.outputs.new_tag }}
