@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      ignore_commits_force_release:
+        type: boolean
+        description: 'Ignore (new) commits and force a release'
+        default: false
 
 jobs:
   release:
@@ -45,26 +50,29 @@ jobs:
           -DversionNameSuffix=-${{ steps.tagger.outputs.new_version_id }}-$(date -u '+%Y%m%d%H%M')
           -DversionCodeOverride=${{ steps.tagger.outputs.new_version_id }}
 
-      - name: "Check for new commits"
+      - name: "Checking if a release needs to be done"
         run : |
-          if [[ "$(git log --since=1.days)" ]]; then
-            echo "New commits found"
-            echo "new_commit=true" >> $GITHUB_ENV
+          if [[ "${{ inputs.ignore_commits_force_release }}" == "true" ]]; then
+            echo "Ignoring commits - Forcing release"
+            echo "do_release=true" >> $GITHUB_ENV
+          elif [[ "$(git log --since=1.days)" ]]; then
+            echo "New commits found - Will do a release"
+            echo "do_release=true" >> $GITHUB_ENV
           fi 
 
       - name: "Tag commit"
-        if: ${{ env.new_commit == 'true' }}
+        if: ${{ env.do_release == 'true' }}
         run: git tag "${{ steps.tagger.outputs.new_tag }}"
 
       - name: "Push to nightly repo"
-        if: ${{ env.new_commit == 'true' }}
+        if: ${{ env.do_release == 'true' }}
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{secrets.ACCESS_TOKEN}}
           branch: dev
 
       - name: "Sign release"
-        if: ${{ env.new_commit == 'true' }}
+        if: ${{ env.do_release == 'true' }}
         uses: ilharp/sign-android-release@v1
         id: sign_app
         with:
@@ -76,14 +84,14 @@ jobs:
           buildToolsVersion: 33.0.0
 
       - name: "Rename apk"
-        if: ${{ env.new_commit == 'true' }}
+        if: ${{ env.do_release == 'true' }}
         id: rename_apk
         run: |
           mv "${{steps.sign_app.outputs.signedFile}}" "app/build/outputs/apk/release/NewPipe_${{steps.tagger.outputs.new_tag}}.apk"
           echo "apkFile=app/build/outputs/apk/release/NewPipe_${{steps.tagger.outputs.new_tag}}.apk" >> $GITHUB_OUTPUT
 
       - name: "Create GitHub release with APK"
-        if: ${{ env.new_commit == 'true' }}
+        if: ${{ env.do_release == 'true' }}
         uses: softprops/action-gh-release@v1
         id: create_release
         with:
