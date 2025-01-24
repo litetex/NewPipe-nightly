@@ -73,7 +73,7 @@ jobs:
 
       - name: "Sign release"
         if: ${{ env.do_release == 'true' }}
-        uses: ilharp/sign-android-release@6cd2d5a932deb601367832e4d419d96c40bcb6db
+        uses: ilharp/sign-android-release@d4c98d58d708ca2d2e6a3469b189a5c8260f2896
         id: sign_app
         with:
           releaseDir: app/build/outputs/apk/release
