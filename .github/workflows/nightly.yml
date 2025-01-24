@@ -53,6 +53,7 @@ jobs:
           fi 
 
       - name: "Build release apk"
+        if: ${{ env.do_release == 'true' }}
         run: >-
           ./gradlew assembleRelease
           --stacktrace
