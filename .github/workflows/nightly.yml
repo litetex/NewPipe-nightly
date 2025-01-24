@@ -42,14 +42,6 @@ jobs:
           git remote add upstream https://github.com/TeamNewPipe/NewPipe.git
           git pull upstream dev
 
-      - name: "Build release apk"
-        run: >-
-          ./gradlew assembleRelease
-          --stacktrace
-          -DpackageSuffix=nightly
-          -DversionNameSuffix=-${{ steps.tagger.outputs.new_version_id }}-$(date -u '+%Y%m%d%H%M')
-          -DversionCodeOverride=${{ steps.tagger.outputs.new_version_id }}
-
       - name: "Checking if a release needs to be done"
         run : |
           if [[ "${{ inputs.ignore_commits_force_release }}" == "true" ]]; then
@@ -59,6 +51,14 @@ jobs:
             echo "New commits found - Will do a release"
             echo "do_release=true" >> $GITHUB_ENV
           fi 
+
+      - name: "Build release apk"
+        run: >-
+          ./gradlew assembleRelease
+          --stacktrace
+          -DpackageSuffix=nightly
+          -DversionNameSuffix=-${{ steps.tagger.outputs.new_version_id }}-$(date -u '+%Y%m%d%H%M')
+          -DversionCodeOverride=${{ steps.tagger.outputs.new_version_id }}
 
       - name: "Tag commit"
         if: ${{ env.do_release == 'true' }}
