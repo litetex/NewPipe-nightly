@@ -73,7 +73,7 @@ jobs:
 
       - name: "Sign release"
         if: ${{ env.do_release == 'true' }}
-        uses: ilharp/sign-android-release@v1
+        uses: ilharp/sign-android-release@6cd2d5a932deb601367832e4d419d96c40bcb6db
         id: sign_app
         with:
           releaseDir: app/build/outputs/apk/release
@@ -81,7 +81,7 @@ jobs:
           keyAlias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
-          buildToolsVersion: 33.0.0
+          buildToolsVersion: 35.0.0
 
       - name: "Rename apk"
         if: ${{ env.do_release == 'true' }}
