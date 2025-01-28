@@ -22,6 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # This is required for checking out the tags, so that the next tag can be computed
           fetch-depth: '0'
       
       - uses: actions/checkout@v4
